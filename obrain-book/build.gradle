@@ -1,0 +1,72 @@
+dependencies {
+    compile (project(':obrain-bampub'))
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+def releaseName() {
+    return "book"
+}
+
+def releaseVersion() {
+    return "V" + new Date().format("yyyyMMdd", TimeZone.getTimeZone("GMT+08:00"))
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'com.zzu.obrainbook.ObrainBookApplication'
+        attributes 'Class-Path': 'file:./libs/ ' + configurations.runtimeClasspath.collect {
+            "./libs/" + it.name
+        }.join(' ')
+    }
+}
+
+task publishNoSee(dependsOn:[jar]) {
+    doLast {
+        delete "../Bin/BFAM/obrain-book_nosee/"
+        dependencies {
+            copy {
+                from project(":obrain-book").configurations.runtimeClasspath
+                from '../Bin/BFAM/obrain-bampub/build/app/libs'
+                into '../Bin/BFAM/obrain-book_nosee/app/libs'
+            }
+            copy {
+                from 'build/libs'
+                into '../Bin/BFAM/obrain-book_nosee/app'
+            }
+            mkdir "../Bin/BFAM/class/obrain-book_nosee/classes"
+            copy {
+                from 'build/classes'
+                into '../Bin/BFAM/class/obrain-book_nosee/classes'
+            }
+            mkdir "../Bin/BFAM/obrain-book_nosee/app/config"
+            copy{
+                from 'build/resources/main'
+                into '../Bin/BFAM/obrain-book_nosee/app/config'
+            }
+            /*copy {
+                from '../bfam-acm/BFAM/obrain-book/'
+                into '../Bin/BFAM/obrain-book_nosee/app'
+            }*/
+        }
+        delete "build"
+    }
+}
+
+
+task compressNoSee(type: Zip) {
+    println 'Begin build ' + project.name + '.zip'
+    from "../Bin/BFAM/obrain-book_nosee/app"
+    into ''
+    baseName = 'BFAM6.0-' + releaseName() + '-nosee'
+    destinationDir file("../Bin/BFAM/obrain-book_nosee")
+    version releaseVersion()
+    extension 'zip'
+    doLast {
+        println 'End build ' + project.name + '.zip'
+    }
+}

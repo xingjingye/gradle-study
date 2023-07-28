@@ -1,0 +1,5 @@
+rootProject.name = 'obrain-study'
+include 'obrain-bampub'
+include 'obrain-book'
+include 'obrain-bookCase'
+

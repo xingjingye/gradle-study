@@ -1,0 +1,31 @@
+jar {
+    manifest {
+        attributes(
+                ['Built-By'              : System.properties['user.name'],
+                 'Implementation-Title'  : project.name,
+                 'Implementation-Version': project.version,
+                 'Build-Timestamp'       : new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()),
+                 'Created-By'            : "Gradle ${gradle.gradleVersion}",
+                 'Build-Jdk'             : "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
+                 'Build-OS'              : "${System.properties['os.name']} ${System.properties['os.arch']} ${System.properties['os.version']}"]
+        )
+    }
+}
+
+task publish(dependsOn:[jar]) {
+    doLast {
+        delete "../Bin/BFAM/obrain-bampub/build"
+        dependencies {
+            copy {
+                from project(":obrain-bampub").configurations.runtimeClasspath
+                from 'build/libs'
+                into '../Bin/BFAM/obrain-bampub/build/app/libs'
+            }
+            mkdir "../Bin/BFAM/class/obrain-bampub/classes"
+            copy {
+                from 'build/classes'
+                into '../Bin/BFAM/class/obrain-bampub/classes'
+            }
+        }
+    }
+}
